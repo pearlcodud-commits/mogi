@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>기후변화 탐정단 수사본부</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;background:#0f2747;color:#1b1b1f;overflow-x:hidden}
+#app{min-height:100vh;display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#13315C;color:#fff;position:sticky;top:0;z-index:20}
+.bar .t{font-weight:900;font-size:20px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{background:rgba(255,255,255,.14);border-radius:30px;padding:6px 14px;font-weight:800;font-size:18px;white-space:nowrap}
+.pill.coin{background:#FFC93C;color:#5a3e00}
+.main{flex:1;padding:18px;max-width:1100px;width:100%;margin:0 auto}
+.panel{background:#fff;border-radius:24px;padding:22px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+h1{font-size:40px;font-weight:900;line-height:1.25}
+h2{font-size:30px;font-weight:900;color:#13315C;margin-bottom:10px}
+h3{font-size:22px;font-weight:900;color:#13315C}
+p,.big{font-size:21px;line-height:1.55}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:18px;padding:16px 26px;font-size:22px;font-weight:900;color:#fff;background:#FF7A1A;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.2);font-family:inherit;transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.btn.blue{background:#3A86FF}.btn.green{background:#1FAB89}.btn.purple{background:#7B2CBF}.btn.gray{background:#8a94a0}.btn.red{background:#E63946}.btn.yellow{background:#FFC93C;color:#4a3300}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.center{text-align:center}
+.mt{margin-top:16px}.mt2{margin-top:26px}
+.cover{background:radial-gradient(circle at 30% 20%,#1f5fa8,#0f2747 70%);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.cover h1{font-size:46px}
+.cover .sub{color:#FFC93C;font-size:22px;font-weight:800;margin-top:10px}
+.floaty{font-size:54px;display:flex;gap:14px;justify-content:center;margin-bottom:12px}
+.floaty span{animation:bob 2s ease-in-out infinite}
+.floaty span:nth-child(2n){animation-delay:.5s}
+@keyframes bob{50%{transform:translateY(-10px)}}
+input.name{font-size:26px;padding:14px 18px;border-radius:16px;border:3px solid #FFC93C;width:min(420px,90%);text-align:center;font-family:inherit;font-weight:800}
+.avatars{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.av{font-size:46px;width:82px;height:82px;border-radius:50%;background:rgba(255,255,255,.12);border:4px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.av.on{border-color:#FFC93C;background:rgba(255,201,60,.25)}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:760px){.board{grid-template-columns:repeat(2,1fr)}}
+.case{border-radius:20px;padding:16px 10px;text-align:center;color:#fff;font-weight:900;font-size:19px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative}
+.case .e{font-size:50px;line-height:1}
+.case.lock{background:#2b4468 !important;color:#9fb3cc}
+.case.done::after{content:"해결!";position:absolute;top:8px;right:8px;background:#FFC93C;color:#4a3300;font-size:14px;padding:3px 8px;border-radius:10px}
+.roul{font-size:90px;height:120px;display:flex;align-items:center;justify-content:center}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps div{flex:1;height:10px;border-radius:6px;background:#dfe6ee}
+.steps div.on{background:#FF7A1A}
+.clues{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:760px){.clues{grid-template-columns:1fr}}
+.clue{perspective:900px;height:230px;cursor:pointer}
+.clue .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.clue.open .in{transform:rotateY(180deg)}
+.clue .f,.clue .b{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.clue .f{background:repeating-linear-gradient(45deg,#13315C,#13315C 14px,#1b3f73 14px,#1b3f73 28px);color:#FFC93C;font-weight:900;font-size:24px}
+.clue .f .q{font-size:60px}
+.clue .b{background:#FFF8E5;transform:rotateY(180deg);font-size:19px;line-height:1.5;font-weight:700;border:4px solid #FFC93C}
+.clue .b small{display:block;margin-top:8px;color:#7B2CBF;font-size:14px}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:700px){.docs{grid-template-columns:1fr}}
+.doc{position:relative;text-align:left;background:#fff;border:4px solid;border-radius:20px;padding:16px;font-family:inherit;font-size:22px;color:#13315C;display:flex;flex-direction:column;gap:10px;cursor:pointer;min-height:130px}
+.dk{display:inline-block;align-self:flex-start;color:#fff;font-weight:900;font-size:16px;padding:4px 12px;border-radius:12px}
+.stamp{position:absolute;right:12px;bottom:10px;border:3px solid #E63946;color:#E63946;font-weight:900;font-size:18px;padding:2px 10px;border-radius:10px;transform:rotate(-12deg)}
+.sents{display:flex;flex-direction:column;gap:8px}
+.sent{font-size:22px;line-height:1.55;padding:10px 14px;border-radius:14px;background:#f5f7fa;cursor:pointer;border:2px solid transparent}
+.sent.on{background:#FFF09A;border-color:#FFC93C}
+.bars{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.br{display:grid;grid-template-columns:130px 1fr 130px;gap:10px;align-items:center;font-size:18px;font-weight:800}
+.bt{background:#eef1f5;border-radius:10px;height:30px;overflow:hidden}.bt span{display:block;height:100%;border-radius:10px}
+.bv{white-space:nowrap}
+@media(max-width:600px){.br{grid-template-columns:90px 1fr 90px;font-size:15px}}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.stats div{background:#f5f7fa;border-radius:18px;padding:18px;text-align:center;font-size:18px;font-weight:800}.stats b{display:block;font-size:40px}
+.ck{background:#EAF4FF;border-radius:20px;padding:18px}
+.evs{display:flex;flex-direction:column;gap:8px}.ev{font-family:inherit;text-align:left;font-size:18px;background:#FFF09A;border:2px solid #FFC93C;border-radius:12px;padding:10px 12px;cursor:pointer;color:#1b1b1f}.ev:disabled{opacity:.4}
+.src a{display:inline-flex;align-items:center;gap:6px;background:#EEE5FB;color:#5b1fa0;font-weight:800;font-size:18px;padding:10px 16px;border-radius:14px;text-decoration:none;border:2px solid #c9b2ef}
+textarea{width:100%;min-height:120px;font-size:22px;padding:14px;border-radius:16px;border:3px solid #3A86FF;font-family:inherit;line-height:1.5;resize:vertical}
+.hint{background:#EAF4FF;border-radius:14px;padding:12px 16px;font-size:18px;line-height:1.5;color:#13315C}
+.arena{position:relative;height:min(58vh,480px);border-radius:22px;overflow:hidden;touch-action:manipulation;user-select:none}
+.tg{position:absolute;font-size:56px;width:84px;height:84px;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:pop .25s ease-out}
+.tg svg{width:70px;height:70px}
+@keyframes pop{from{transform:scale(.2)}to{transform:scale(1)}}
+.hit{animation:hit .3s forwards}
+@keyframes hit{to{transform:scale(1.8);opacity:0}}
+.hud{display:flex;justify-content:space-between;font-size:24px;font-weight:900;color:#13315C;margin-bottom:10px}
+.timer{height:14px;border-radius:8px;background:#dfe6ee;overflow:hidden;margin-bottom:12px}
+.timer div{height:100%;background:#1FAB89;transition:width .2s linear}
+.sortcard{font-size:28px;font-weight:900;text-align:center;background:#FFF8E5;border:4px solid #FFC93C;border-radius:22px;padding:30px 16px;min-height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.sortcard .e{font-size:56px}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.bins .btn{padding:24px 10px;font-size:24px}
+.chain{display:flex;flex-direction:column;gap:10px}
+.slot{border:3px dashed #b8c2cf;border-radius:16px;padding:14px 16px;font-size:21px;font-weight:800;min-height:60px;display:flex;align-items:center;gap:12px;color:#8a94a0}
+.slot.fill{border-style:solid;border-color:#1FAB89;background:#E6F7F1;color:#0b5e48}
+.slot b{background:#13315C;color:#fff;border-radius:50%;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.pieces{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pieces .btn{font-size:20px;padding:14px 18px;background:#3A86FF}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:700px){.opts{grid-template-columns:1fr}}
+.opts .btn{font-size:21px;padding:20px 14px;justify-content:flex-start;text-align:left}
+.qbox{background:#EAF4FF;border-radius:20px;padding:22px;font-size:28px;font-weight:900;color:#13315C;line-height:1.45}
+.fb{margin-top:14px;border-radius:16px;padding:14px 18px;font-size:21px;font-weight:800;line-height:1.5}
+.fb.ok{background:#E6F7F1;color:#0b5e48}.fb.no{background:#FDE8EA;color:#a1222d}
+.toast{position:fixed;left:50%;top:80px;transform:translateX(-50%);background:#FFC93C;color:#4a3300;font-weight:900;font-size:22px;padding:12px 22px;border-radius:30px;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3);animation:toast 1.6s forwards}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,-20px)}15%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+.modal{position:fixed;inset:0;background:rgba(5,15,30,.75);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal .panel{max-width:720px;width:100%;max-height:92vh;overflow:auto}
+.stickers{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:600px){.stickers{grid-template-columns:repeat(3,1fr)}}
+.stk{border-radius:16px;background:#f1f4f8;text-align:center;padding:10px 4px;font-size:15px;font-weight:800;color:#8a94a0}
+.stk .e{font-size:44px;filter:grayscale(1);opacity:.3}
+.stk.have{background:#FFF8E5;color:#13315C}.stk.have .e{filter:none;opacity:1}
+.stk.r2.have{background:#EEE5FB}.stk.r3.have{background:linear-gradient(135deg,#FFE29A,#FFB3C7,#B5E3FF)}
+.gacha{font-size:110px;height:150px;display:flex;align-items:center;justify-content:center}
+.spin{animation:spin .9s ease-in-out}
+@keyframes spin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(540deg) scale(.6)}100%{transform:rotate(720deg) scale(1)}}
+.report .it{border:3px solid #dfe6ee;border-radius:18px;padding:14px;margin-bottom:12px}
+.tagbtn{font-size:18px;padding:10px 16px}
+.tagbtn.sel{outline:4px solid #13315C}
+.badge{display:inline-block;background:#13315C;color:#fff;border-radius:12px;padding:4px 12px;font-size:16px;font-weight:800}
+.conf{position:fixed;top:-40px;font-size:30px;z-index:98;animation:fall 2.2s linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+const JELLY='<svg viewBox="0 0 64 64" style="width:1em;height:1em"><path d="M8 30C8 14 20 6 32 6s24 8 24 24z" fill="#8fd3ff" stroke="#2a8ccf" stroke-width="3"/><path d="M14 30c0 10-4 14-2 24M24 30c0 12 4 16 0 26M32 30v28M40 30c0 12-4 16 0 26M50 30c0 10 4 14 2 24" fill="none" stroke="#2a8ccf" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="20" r="3" fill="#13315C"/><circle cx="40" cy="20" r="3" fill="#13315C"/></svg>';
+const DOCS={
+flower:[
+ {k:"news",t:"100년 만에 가장 빨리 핀 서울 벚꽃",s:["2021년 3월 24일, 서울의 벚꽃이 피었어요.","1922년 서울에서 벚꽃 관측을 시작한 뒤 가장 빨리 핀 날이에요.","평년(4월 10일)보다 17일이나 빨랐어요.","기상청은 2월과 3월의 기온이 평년보다 높고 햇빛이 비친 시간도 길었기 때문이라고 설명했어요."],src:"기상청 보도자료 (2021년 3월)",chk:["2021년 서울 벚꽃은 평년보다 늦게 피었다.",false]},
+ {k:"num",t:"숫자로 보기: 서울 벚꽃이 핀 날",bars:[["평년","4월 10일",41],["2020년","3월 27일",27],["2023년","3월 25일",25],["2021년","3월 24일",24]],s:["막대는 3월 1일부터 꽃이 필 때까지 걸린 날 수예요. 막대가 짧을수록 꽃이 일찍 핀 거예요.","2021년은 역대 1위, 2023년(3월 25일)은 역대 2위로 빨랐어요.","2020년에도 그때까지의 기록을 깨고 3월 27일에 피었어요."],src:"기상청 벚꽃 개화 관측 자료",chk:["막대가 짧을수록 벚꽃이 일찍 핀 것이다.",true]},
+ {k:"sci",t:"과학자의 설명: 꽃은 어떻게 봄을 알까?",s:["식물은 따뜻한 날이 얼마나 이어지는지 느끼고 꽃 피울 때를 정해요.","겨울이 짧아지고 봄이 일찍 따뜻해지면 꽃도 서둘러 펴요.","우리나라 봄의 시작은 과거 30년보다 최근 30년에 17일 빨라졌어요.","꽃이 너무 일찍 피면 꿀벌 같은 곤충이 활동하는 때와 어긋날 수 있어요.","일찍 핀 꽃이 꽃샘추위를 만나면 얼어서 피해를 입기도 해요."],src:"기상청 「우리나라 109년 기후변화 분석」 (2021)",chk:["우리나라 봄의 시작이 17일 빨라졌다.",true]},
+ {k:"act",t:"우리 생활은 어떻게 달라질까?",s:["봄꽃 축제 날짜를 정하기가 점점 어려워져요.","과일나무 꽃이 일찍 폈다가 추위에 얼면 과일 수확이 줄 수 있어요.","꽃가루 알레르기가 있는 사람은 더 일찍부터 조심해야 해요.","우리 동네 꽃이 핀 날을 해마다 기록하면 기후변화를 직접 관찰할 수 있어요."],src:"기후변화 생활 영향 정리",chk:["꽃이 핀 날을 기록하면 기후변화를 관찰할 수 있다.",true]}],
+mosq:[
+ {k:"news",t:"우리 양주시에 말라리아 경보!",s:["2025년 7월, 경기도는 양주시에 말라리아 경보를 내렸어요.","말라리아는 말라리아 원충을 가진 모기가 사람을 물어서 옮기는 병이에요.","양주시를 포함한 경기 북부, 인천, 서울과 강원 일부 지역이 말라리아 위험지역이에요.","열이 나고 춥고 떨리는 증상이 반복되면 빨리 병원에 가야 해요."],src:"경기도 발표 · 질병관리청 (2025년)",chk:["말라리아는 모기가 옮기는 병이다.",true]},
+ {k:"num",t:"숫자로 보기: 말라리아 환자는 어디에서?",bars:[["경기","63.8%",63.8],["인천","18.5%",18.5],["서울","10.0%",10],["그 밖의 지역","7.7%",7.7]],s:["2025년 6월 중순까지 나온 말라리아 환자를 지역별로 나눈 거예요.","환자의 절반 넘게 경기도에서 나왔어요.","말라리아 환자는 6~8월에 가장 많이 생겨요."],src:"질병관리청 (2025년 6월 발표)",chk:["말라리아 환자가 가장 많이 나온 곳은 경기도다.",true]},
+ {k:"sci",t:"과학자의 설명: 따뜻하면 모기가 왜 늘까?",s:["모기와 진드기는 따뜻할수록 빨리 자라고 더 오래 활동해요.","모기 수는 기온의 영향을 많이 받아요.","5월이 서늘했던 2025년에는 모기가 덜 생겨서 말라리아 주의보가 한 주 늦게 나왔어요.","진드기에 물리면 '중증열성혈소판감소증후군(SFTS)' 같은 병에 걸릴 수 있어요.","따뜻한 날이 길어지면 모기·진드기에 물릴 수 있는 기간도 길어져요."],src:"질병관리청",chk:["날씨가 서늘하면 모기가 더 빨리 늘어난다.",false]},
+ {k:"act",t:"모기·진드기 막는 탐정 수칙",s:["모기가 많은 밤(해 질 때~해 뜰 때)에는 바깥 활동을 줄여요.","밤에 나갈 때는 밝은 색 긴 소매, 긴 바지를 입어요.","방충망을 고치고 모기장을 써요.","풀밭에서는 돗자리를 깔고, 다녀오면 옷을 털고 깨끗이 씻어요."],src:"질병관리청 예방 수칙",chk:["밤에 나갈 때는 짧은 옷을 입는 것이 좋다.",false]}],
+jelly:[
+ {k:"news",t:"해파리가 열흘 일찍 나타났다!",s:["2024년 5월, 남해에서 독이 강한 노무라입깃해파리가 발견됐어요.","국립수산과학원은 이상고온 때문에 평년보다 열흘쯤 일찍 나타났다고 했어요.","2023년 여름 해수욕장 물놀이 사고 768건 중 753건이 해파리 쏘임 사고였어요.","물놀이 사고 100건 중 98건이 해파리 때문이었던 셈이에요."],src:"국립수산과학원 (2024년)",chk:["해수욕장 물놀이 사고 대부분이 해파리 쏘임이었다.",true]},
+ {k:"num",t:"숫자로 보기: 해파리 쏘임 사고",bars:[["2023년","744건",744],["2024년","4,224건",4224]],s:["해파리 쏘임 사고가 1년 만에 약 5.7배로 늘었어요.","동해에서 발견된 위험한 바다 생물 종류도 10년 사이 5종에서 16종으로 늘었어요.","바닷물 온도가 올라가며 남쪽 바다 생물이 북쪽으로 올라오고 있어요."],src:"한국해양과학기술원 분석 (2026년)",chk:["2024년 해파리 쏘임 사고는 2023년보다 줄었다.",false]},
+ {k:"sci",t:"과학자의 설명: 해파리는 왜 따뜻한 바다를 좋아할까?",s:["바닷물 온도가 오르면 해파리의 먹이인 플랑크톤이 늘어나요.","먹이가 많으니 해파리가 빨리 자라고 수도 많아져요.","노무라입깃해파리는 우리 바다에 오는 해파리 중 가장 크고 지름이 1m까지 자라요.","보름달물해파리는 그물을 망가뜨리고 물고기잡이에 피해를 줘요."],src:"국립수산과학원",chk:["바닷물 온도가 오르면 해파리 먹이가 늘어난다.",true]},
+ {k:"act",t:"해파리를 만났을 때",s:["해수욕장에서는 피부를 덜 드러내는 옷을 입어요.","쏘이면 바로 물 밖으로 나와 바닷물이나 생리식염수로 씻어요.","수돗물이나 생수 같은 민물로 씻으면 안 돼요.","많이 아프거나 숨쉬기 힘들면 바로 병원에 가요."],src:"국립수산과학원 안전 수칙",chk:["해파리에 쏘이면 생수로 씻는다.",false]}],
+drought:[
+ {k:"news",t:"전남, 1년에 281일 동안 가뭄",s:["2022년 남부지방은 1974년 이후 가뭄이 가장 오래 이어졌어요(227.3일).","특히 광주·전남은 281.3일이나 가뭄이 계속됐어요.","광주 시민이 마시는 물을 담은 댐이 바닥을 드러낼 위기였어요.","광주시는 시민들에게 물을 20% 아껴 쓰자고 부탁했어요."],src:"기상청 · 서울신문 (2022~2023년)",chk:["광주·전남은 1년 중 281일 넘게 가뭄이었다.",true]},
+ {k:"num",t:"숫자로 보기: 주암댐에 남은 물",bars:[["물이 가득 찼을 때","100%",100],["2022년 11월","32.8%",32.8],["가장 적었을 때","20.3%",20.3]],s:["주암댐은 광주·전남 사람들이 쓰는 물을 모아 두는 큰 댐이에요.","가뭄 때 주암댐의 물은 역대 가장 낮은 20.3%까지 내려갔어요.","물이 다섯 칸 중 한 칸밖에 남지 않은 셈이에요."],src:"한국수자원공사 · 관련 연구 (2022~2023년)",chk:["주암댐 물이 가장 적을 때는 20% 정도였다.",true]},
+ {k:"sci",t:"과학자의 설명: 가뭄은 왜 생길까?",s:["비가 오랫동안 적게 오면 땅과 저수지가 말라요.","2022년에는 장마전선이 주로 중부지방에 머물러 남부지방에는 비가 적게 왔어요.","기온이 높으면 땅과 물에서 물이 더 빨리 증발해요.","기상청은 기후변화로 해마다, 지역마다 가뭄 차이가 크게 나타난다고 했어요."],src:"기상청",chk:["2022년 남부지방은 비가 평소보다 많이 왔다.",false]},
+ {k:"act",t:"물 지킴이가 되는 방법",s:["양치할 때 컵에 물을 받아 써요.","샤워 시간을 줄여요.","새는 수도꼭지를 보면 바로 어른께 알려요.","빗물을 모아 화단에 줘요."],src:"한국수자원공사 물 절약 수칙",chk:["양치할 때 물을 틀어 놓는 것이 좋다.",false]}],
+fire:[
+ {k:"news",t:"우리나라 역사상 가장 큰 산불",s:["2025년 3월 22일, 경북 의성에서 시작된 산불이 안동·청송·영양·영덕까지 번졌어요.","불씨는 사람의 실수에서 시작됐어요.","강한 바람과 건조한 날씨 때문에 불이 아주 빠르게 퍼졌어요.","헬기 최대 88대와 진화 인력 약 5,500명이 불을 끄기 위해 힘썼어요.","우리나라 역사상 가장 넓은 숲이 불에 탔어요."],src:"산림청 · 언론 보도 (2025년)",chk:["의성 산불은 바람이 강하고 건조해서 빠르게 번졌다.",true]},
+ {k:"num",t:"숫자로 보기: 불에 탄 숲의 넓이",bars:[["안동","약 3만 4천 ha",34000],["의성","약 2만 7천 ha",27000],["영덕","약 1만 6천 ha",16000],["청송","약 9천 3백 ha",9300],["영양","약 6천 8백 ha",6800]],s:["ha(헥타르)는 넓이의 단위예요. 1ha는 축구장 약 1.4개 넓이예요.","다섯 지역을 합하면 약 9만 4천 ha나 돼요.","가장 피해가 큰 곳은 안동이었어요."],src:"경북 5개 시·군 집계 (2025년 4월)",chk:["산불 피해가 가장 컸던 곳은 안동이다.",true]},
+ {k:"sci",t:"과학자의 설명: 기후변화와 산불",s:["기온이 오르고 비가 적으면 나뭇잎과 땅이 바싹 말라요.","바싹 마른 숲에서는 작은 불씨도 큰불이 되기 쉬워요.","우리나라 산불은 3~4월 봄철에 절반 가까이 일어나요.","숲은 이산화탄소를 빨아들여요. 숲이 타면 이산화탄소가 나와 기후변화가 더 심해질 수 있어요."],src:"산림청 산불 통계 (1995~2024년)",chk:["우리나라 산불은 가을에만 일어난다.",false]},
+ {k:"act",t:"산불을 막는 방법",s:["산불 원인의 40% 이상은 산에 간 사람의 실수나 담뱃불이에요.","산에서는 불을 피우거나 쓰레기를 태우지 않아요.","산불을 보면 바로 119에 신고해요.","산불이 나면 어른의 안내에 따라 학교나 마을회관 같은 대피소로 피해요."],src:"산림청",chk:["산불 원인 중에는 사람의 실수가 많다.",true]}],
+flood:[
+ {k:"news",t:"한 시간에 141.5mm!",s:["2022년 8월 8일, 서울 동작구에 한 시간 동안 141.5mm의 비가 쏟아졌어요.","서울에서 기상 관측을 시작한 뒤 가장 많은 한 시간 비였어요.","도로와 지하 공간, 낮은 곳의 집들이 물에 잠겼어요.","짧은 시간에 아주 많은 비가 한꺼번에 내리는 것을 '극한 호우'라고 해요."],src:"기상청 (2022년)",chk:["2022년 8월 서울에는 한 시간에 100mm가 넘는 비가 내렸다.",true]},
+ {k:"num",t:"숫자로 보기: 비 오는 날은 줄고, 비의 양은 늘고",stats:[["+135.4mm","1년 동안 내린 비의 양"],["−21.2일","1년 중 비 오는 날"]],s:["최근 30년은 과거 30년보다 1년 동안 내린 비의 양이 135.4mm 늘었어요.","그런데 비 오는 날은 21.2일 줄었어요.","비가 한 번 올 때 한꺼번에 많이 쏟아진다는 뜻이에요."],src:"기상청 「우리나라 109년 기후변화 분석」 (2021)",chk:["요즘 비 오는 날은 예전보다 늘었다.",false]},
+ {k:"sci",t:"과학자의 설명: 왜 비가 더 세질까?",s:["공기가 따뜻해지면 수증기를 더 많이 품을 수 있어요.","수증기가 많으면 한 번에 많은 비가 내릴 수 있어요.","특히 7~8월에 비가 세게 내리는 일이 늘었어요.","땅이 아스팔트로 덮인 도시는 빗물이 땅속으로 잘 스며들지 못해 물이 빨리 차올라요."],src:"기상청",chk:["따뜻한 공기는 수증기를 더 많이 품을 수 있다.",true]},
+ {k:"act",t:"폭우 때 안전 수칙",s:["지하차도, 지하 주차장, 하천 근처에 가지 않아요.","재난 문자와 뉴스를 확인해요.","물이 찬 길은 걷지 않아요. 맨홀 뚜껑이 열려 있을 수 있어요.","어른과 함께 우리 동네 대피 장소를 미리 알아 둬요."],src:"행정안전부 국민행동요령",chk:["비가 많이 올 때 하천을 구경하러 간다.",false]}],
+season:[
+ {k:"news",t:"여름이 가장 긴 계절이 되었다",s:["100여 년 전에는 겨울이 109일로 가장 긴 계절이었어요.","지금은 여름이 118일로 가장 길어요.","여름은 20일 길어지고 겨울은 22일 짧아졌어요.","여름은 6월 11일쯤 시작하던 것이 5월 31일쯤으로 빨라졌어요."],src:"기상청 「우리나라 109년 기후변화 분석」 (2021)",chk:["지금 우리나라에서 가장 긴 계절은 여름이다.",true]},
+ {k:"num",t:"숫자로 보기: 계절의 길이 (과거 → 최근)",bars:[["여름 과거","98일",98],["여름 최근","118일",118],["겨울 과거","109일",109],["겨울 최근","87일",87],["봄 과거","85일",85],["봄 최근","91일",91],["가을 과거","73일",73],["가을 최근","69일",69]],s:["과거는 1912~1940년, 최근은 1991~2020년의 평균이에요.","여름과 봄은 길어지고, 겨울과 가을은 짧아졌어요.","가장 많이 짧아진 계절은 겨울(22일)이에요."],src:"기상청 「우리나라 109년 기후변화 분석」 (2021)",chk:["봄은 짧아지고 가을은 길어졌다.",false]},
+ {k:"sci",t:"과학자의 설명: 계절은 어떻게 정할까?",s:["하루 평균 기온이 20℃ 이상으로 올라 다시 떨어지지 않으면 여름이 시작돼요.","하루 평균 기온이 5℃ 아래로 떨어져 다시 오르지 않으면 겨울이 시작돼요.","지구가 더워지면서 20℃가 넘는 날이 더 일찍 오고 더 늦게 끝나요.","100여 년 동안 우리나라 연평균 기온은 1.6℃ 올랐어요."],src:"기상청",chk:["우리나라 연평균 기온은 1.6℃ 올랐다.",true]},
+ {k:"act",t:"길어진 여름, 우리 생활",s:["폭염과 밤에도 더운 열대야가 늘었어요. 열대야는 1년에 8.4일 늘었어요.","더울 때는 물을 자주 마시고 한낮의 바깥 활동을 줄여요.","에어컨을 많이 틀게 되어 전기를 더 많이 써요.","겨울이 짧아지면 눈썰매장이나 얼음 축제를 열기 어려워지기도 해요."],src:"기상청 · 생활 속 영향",chk:["열대야가 줄었다.",false]}],
+crop:[
+ {k:"news",t:"강원도에서 자라는 사과",s:["옛날에는 대구가 사과로 유명했어요.","지금은 강원도 정선, 양구, 홍천 등에서도 사과를 많이 키워요.","강원도의 사과 밭 넓이는 15년 동안 약 10배로 늘었어요.","100여 년 동안 기온이 1.6℃ 오르면서 작물 재배지가 81km 북쪽으로 올라갔어요."],src:"농림축산식품부 · 언론 보도 (2025년)",chk:["작물 재배지가 남쪽으로 내려가고 있다.",false]},
+ {k:"num",t:"숫자로 보기: 사과를 키울 수 있는 땅 (예측)",bars:[["과거 30년","약 672만 ha",672],["2030년대","약 247만 ha",247],["2050년대","약 83만 ha",83],["2090년대","약 0.4만 ha",0.4]],s:["온실가스를 지금처럼 계속 내보낸다고 가정하고 예측한 결과예요.","사과를 키울 수 있는 땅이 계속 줄어들어요.","2070년대에는 강원도 일부에서만 사과를 키울 수 있을 것으로 예측돼요."],src:"농촌진흥청 과일 재배지 변동 예측 (2022)",chk:["앞으로 사과를 키울 수 있는 땅은 늘어날 것이다.",false]},
+ {k:"sci",t:"과학자의 설명: 사과는 왜 북쪽으로 갈까?",s:["사과는 서늘한 날씨에서 잘 자라는 과일이에요.","날씨가 너무 더우면 사과 색이 잘 들지 않고 맛이 떨어질 수 있어요.","반대로 감귤은 제주를 넘어 남해안과 강원도 해안에서도 키울 수 있게 될 것으로 예측돼요.","망고, 멜론 같은 더운 나라 과일의 재배지도 늘고 있어요."],src:"농촌진흥청",chk:["사과는 서늘한 날씨를 좋아한다.",true]},
+ {k:"act",t:"더 알아보기: 바다와 농부의 변화",s:["바닷물이 따뜻해지면서 찬물을 좋아하는 명태는 우리 바다에서 거의 잡히지 않아요.","따뜻한 물을 좋아하는 물고기와 바다 생물은 북쪽으로 올라오고 있어요.","농부와 과학자들은 더위에 강한 새 사과 품종을 만들고 있어요.","동물과 식물이 사는 지역이 바뀌면 우리 밥상도 달라져요."],src:"농촌진흥청 · 국립수산과학원",chk:["과학자들은 더위에 강한 사과 품종을 만들고 있다.",true]}]
+};
+const DK={news:["📰","뉴스 기사","#E63946"],num:["📊","숫자로 보기","#3A86FF"],sci:["🔬","과학자의 설명","#7B2CBF"],act:["🛡️","우리의 대처","#1FAB89"]};
+
+const KIDS={n:"기상청 어린이 기상교실",u:"https://www.kma.go.kr/kids/"};
+const CASES=[
+{id:"flower",e:"🌸",c:"#FF5D8F",t:"봄꽃이 일찍 피는 사건",s:"올해도 벚꽃이 너무 빨리 폈대요! 무슨 일일까요?",
+ clues:[["봄의 시작이 과거 30년보다 최근 30년에 17일이나 빨라졌어요.","기상청 109년 기후변화 분석"],["2021년 서울 벚꽃은 관측을 시작한 뒤 가장 빨리 피었어요 (3월 24일).","기상청"],["꽃이 너무 일찍 피면 꿀벌이 아직 활동하지 않아 꽃가루를 옮기지 못할 수 있어요.","생태계 이야기"]],
+ src:[KIDS,{n:"기상청 날씨누리",u:"https://www.weather.go.kr"}],ask:"봄꽃이 피는 시기는 어떻게 달라졌나요? 그 까닭도 써 보세요.",
+ game:{type:"order",title:"원인 사슬 잇기",desc:"기후변화가 봄꽃에 영향을 주는 순서대로 눌러요!",items:["지구의 기온이 올라가요","겨울이 짧아져요","봄이 일찍 찾아와요","벚꽃·개나리가 일찍 펴요","꿀벌과 꽃의 시간이 어긋날 수 있어요"]},
+ quiz:[["기후변화로 봄꽃이 피는 시기는?",["늦어지고 있다","빨라지고 있다","그대로다","겨울로 바뀌었다"],1,"겨울이 짧아져 봄꽃이 더 일찍 피어요."],["봄꽃이 일찍 피는 가장 큰 까닭은?",["겨울이 짧아져서","비가 적게 와서","해파리가 많아서","산이 높아져서"],0,"따뜻한 날이 일찍 오면서 꽃도 서둘러 피어요."]]},
+{id:"mosq",e:"🦟",c:"#E63946",t:"모기·진드기 대습격 사건",s:"늦가을인데도 모기에 물렸다는 신고가 들어왔어요!",
+ clues:[["모기는 따뜻할수록 더 빨리 자라고 더 오래 활동해요.","질병관리청"],["진드기에 물리면 '중증열성혈소판감소증후군(SFTS)' 같은 병에 걸릴 수 있어요.","질병관리청"],["풀밭에 갈 때는 긴 옷을 입고, 돌아오면 옷을 털고 깨끗이 씻어요.","질병관리청 예방 수칙"]],
+ src:[KIDS,{n:"질병관리청",u:"https://www.kdca.go.kr"}],ask:"모기·진드기가 많아지면 우리 생활에 어떤 일이 생기나요?",
+ game:{type:"catch",title:"모기 잡기 대작전",desc:"모기를 톡톡 잡아요! 꿀벌은 고마운 친구니까 누르면 안 돼요.",target:"🦟",decoy:"🐝",goal:14,bg:"linear-gradient(#c8f0d0,#7fcf8f)"},
+ quiz:[["모기·진드기가 많아지면 생기는 일은?",["감염병에 걸리는 사람이 늘어나요","눈이 많이 와요","봄꽃이 늦게 펴요","숲이 넓어져요"],0,"모기·진드기는 병을 옮길 수 있어요."],["진드기를 피하는 좋은 방법은?",["반바지로 풀밭에 눕기","긴 옷 입고 다녀와서 씻기","풀밭에서 낮잠 자기","옷을 털지 않기"],1,"긴 옷을 입고, 다녀온 뒤 옷을 털고 씻어요."]]},
+{id:"jelly",e:"jelly",c:"#1E96C8",t:"해파리 떼 출몰 사건",s:"해수욕장에 해파리가 떼로 나타나 입수가 금지됐어요!",
+ clues:[["바닷물이 따뜻해지면 해파리가 더 빨리, 더 많이 자라요.","국립수산과학원"],["해파리에 쏘이면 따갑고 부어요. 바닷물로 씻고 바로 어른께 알려요.","국립수산과학원 안전 수칙"],["해파리 떼가 그물에 걸리면 물고기잡이(어업)에 큰 피해가 생겨요.","국립수산과학원"]],
+ src:[KIDS,{n:"국립수산과학원",u:"https://www.nifs.go.kr"}],ask:"해파리 떼가 자주 나타나는 까닭과 그 피해를 써 보세요.",
+ game:{type:"catch",title:"해파리 건지기",desc:"그물로 해파리를 건져요! 물고기는 건지면 안 돼요.",target:"jelly",decoy:"🐟",goal:13,bg:"linear-gradient(#7fd3ff,#1E6FB0)"},
+ quiz:[["해파리 떼가 자주 나타나는 까닭은?",["바닷물이 차가워져서","바닷물의 온도가 높아져서","눈이 많이 와서","산불이 나서"],1,"따뜻한 바다에서 해파리가 잘 자라요."],["해파리에 쏘였을 때 알맞은 행동은?",["그냥 참고 계속 수영하기","바닷물로 씻고 어른께 알리기","손으로 세게 문지르기","모래로 문지르기"],1,"바닷물로 씻고 바로 어른이나 안전요원에게 알려요."]]},
+{id:"drought",e:"🏜️",c:"#B5713C",t:"물이 사라진 저수지 사건",s:"몇 달째 비가 오지 않아 저수지 바닥이 드러났어요!",
+ clues:[["비가 오랫동안 오지 않으면 저수지와 댐의 물이 줄어들어요.","환경부"],["가뭄이 들면 논밭이 말라 농작물이 잘 자라지 못해요.","농촌진흥청"],["양치할 때 컵 쓰기, 샤워 시간 줄이기처럼 물을 아끼는 습관이 도움이 돼요.","한국수자원공사"]],
+ src:[KIDS,{n:"환경부",u:"https://www.me.go.kr"},{n:"한국수자원공사",u:"https://www.kwater.or.kr"}],ask:"가뭄이 생기면 우리 생활과 환경은 어떻게 되나요?",
+ game:{type:"sort",title:"물 지킴이 분류",desc:"물을 아끼는 행동일까요, 낭비하는 행동일까요?",left:"💧 물을 아껴요",right:"🚱 물을 낭비해요",items:[["양치할 때 컵에 물 받아 쓰기","🪥",0],["물을 틀어 놓고 양치하기","🚰",1],["샤워 시간 5분 줄이기","🚿",0],["설거지할 때 물을 계속 틀어 두기","🍽️",1],["빗물을 모아 화단에 주기","🌧️",0],["새는 수도꼭지를 그냥 두기","💦",1],["세탁물을 모아서 한 번에 빨기","👕",0],["물놀이 하듯 물을 마구 뿌리기","🔫",1]]},
+ quiz:[["가뭄이 계속되면 생기는 일은?",["이용할 수 있는 물이 부족해요","물이 넘쳐요","해파리가 늘어요","겨울이 길어져요"],0,"비가 오지 않아 쓸 물이 모자라요."],["가뭄 때 우리가 할 수 있는 일은?",["물을 아껴 써요","물을 틀어 놓고 놀아요","수도꼭지를 고치지 않아요","물을 버려요"],0,"작은 습관으로 물을 아낄 수 있어요."]]},
+{id:"fire",e:"🔥",c:"#FF7A1A",t:"사라진 숲 사건",s:"건조한 날씨에 큰 산불이 나서 숲이 사라졌어요!",
+ clues:[["덥고 건조한 날이 많아지면 산불이 잘 나고 빨리 번져요.","산림청"],["2025년 3월 경상북도 의성 등에서 큰 산불이 나 아주 넓은 숲이 탔어요.","산림청"],["숲은 이산화탄소를 빨아들여요. 숲이 사라지면 기후변화가 더 심해질 수 있어요.","산림청"]],
+ src:[KIDS,{n:"산림청",u:"https://www.forest.go.kr"}],ask:"산불이 자주 나는 까닭과 산불이 환경에 주는 피해를 써 보세요.",
+ game:{type:"catch",title:"산불 진화 작전",desc:"불꽃을 눌러 꺼요! 나무는 누르면 안 돼요.",target:"🔥",decoy:"🌳",goal:15,bg:"linear-gradient(#ffd6a8,#c96a3a)"},
+ quiz:[["산불이 자주 나는 까닭으로 알맞은 것은?",["비가 많이 와서","덥고 건조한 날이 많아져서","눈이 많이 와서","바닷물이 차가워서"],1,"덥고 메마른 날씨는 산불이 나기 쉬워요."],["숲이 사라지면 어떻게 될까요?",["이산화탄소를 빨아들일 나무가 줄어요","공기가 더 깨끗해져요","동물이 더 많아져요","비가 더 잘 와요"],0,"숲은 이산화탄소를 흡수하는 소중한 곳이에요."]]},
+{id:"flood",e:"🌊",c:"#3A86FF",t:"물에 잠긴 마을 사건",s:"한꺼번에 쏟아진 비로 지하차도와 마을이 물에 잠겼어요!",
+ clues:[["요즘은 비 오는 날은 줄었지만 한 번 올 때 많은 비가 쏟아지는 경우가 늘었어요.","기상청 109년 기후변화 분석"],["2022년 8월 서울에는 한 시간에 100mm가 넘는 비가 내려 많은 곳이 물에 잠겼어요.","기상청"],["폭우 때는 지하 공간, 하천 근처, 계곡에 가지 않아요.","국민재난안전포털"]],
+ src:[KIDS,{n:"국민재난안전포털",u:"https://www.safekorea.go.kr"}],ask:"폭우가 자주 내리면 어떤 피해가 생기나요? 안전 수칙도 써 보세요.",
+ game:{type:"sort",title:"폭우 안전 행동 분류",desc:"폭우가 쏟아질 때! 안전한 행동일까요, 위험한 행동일까요?",left:"✅ 안전해요",right:"⚠️ 위험해요",items:[["물이 찬 지하차도로 걸어가기","🚇",1],["높은 곳으로 대피하기","⛰️",0],["불어난 하천 구경하러 가기","🏞️",1],["재난 문자와 뉴스 확인하기","📱",0],["계곡에서 계속 물놀이 하기","🏕️",1],["하수구 근처에 가지 않기","🕳️",0],["어른과 함께 대피 장소 알아 두기","🗺️",0],["넘친 물에서 뛰어놀기","🤸",1]]},
+ quiz:[["폭우가 자주 내리면 생기는 피해는?",["낮은 곳이 물에 잠겨요","땅이 쩍쩍 갈라져요","봄꽃이 일찍 펴요","눈이 많이 와요"],0,"도로·집·논밭이 물에 잠길 수 있어요."],["요즘 비가 내리는 모습은 어떻게 바뀌었나요?",["비 오는 날이 늘고 약하게 와요","한 번에 많은 비가 쏟아지는 일이 늘었어요","비가 전혀 오지 않아요","눈만 와요"],1,"비 오는 날은 줄었지만 한꺼번에 세차게 와요."]]},
+{id:"season",e:"☀️",c:"#F4A100",t:"길어진 여름 사건",s:"여름이 끝나지 않아요! 계절의 길이가 이상해졌어요!",
+ clues:[["여름은 98일에서 118일로 20일 길어졌어요.","기상청 109년 기후변화 분석"],["겨울은 109일에서 87일로 22일 짧아졌어요.","기상청 109년 기후변화 분석"],["찌는 듯한 폭염과 밤에도 더운 열대야가 늘었어요.","기상청 109년 기후변화 분석"]],
+ src:[KIDS,{n:"기후정보포털",u:"https://www.climate.go.kr"}],ask:"우리나라 계절의 길이는 어떻게 달라졌나요? 숫자를 넣어 써 보세요.",
+ game:{type:"order",title:"계절 길이 순위 맞히기",desc:"최근 30년, 가장 긴 계절부터 짧은 계절 순서로 눌러요! (힌트: 단서 카드)",items:["여름 (118일)","봄 (91일)","겨울 (87일)","가을 (69일)"]},
+ quiz:[["기후변화로 길어지고 있는 계절은?",["봄","여름","가을","겨울"],1,"여름이 20일이나 길어졌어요."],["과거에 가장 길었던 계절은 겨울이에요. 지금 겨울은?",["더 길어졌어요","22일 짧아졌어요","사라졌어요","그대로예요"],1,"109일에서 87일로 짧아졌어요."]]},
+{id:"crop",e:"🍎",c:"#1FAB89",t:"이사 간 사과밭 사건",s:"대구 사과가 유명했는데, 이제는 강원도에서도 사과를 키운대요!",
+ clues:[["사과를 키우는 곳이 대구·경북에서 강원도(정선, 양구 등)까지 넓어지고 있어요.","농촌진흥청"],["제주도와 남쪽 지방에서는 망고처럼 더운 나라 과일도 키워요.","농촌진흥청"],["바다에서도 명태처럼 찬물을 좋아하는 물고기는 줄고, 따뜻한 물 물고기가 늘었어요.","국립수산과학원"]],
+ src:[KIDS,{n:"농촌진흥청",u:"https://www.rda.go.kr"},{n:"국립수산과학원",u:"https://www.nifs.go.kr"}],ask:"농작물의 재배지나 동식물이 사는 곳은 어떻게 달라지고 있나요?",
+ game:{type:"order",title:"사과밭 이사 경로",desc:"따뜻해지면서 사과 재배지가 옮겨 간 방향! 남쪽(옛날)부터 북쪽(지금) 순서로 눌러요.",items:["대구 (옛날 사과 고장)","경북 북부 (영주·봉화)","충북 (충주)","강원 (정선·양구)"]},
+ quiz:[["사과를 키우는 지역은 어떻게 바뀌고 있나요?",["남쪽으로 내려가요","점점 북쪽으로 올라가요","바다로 옮겨 가요","바뀌지 않아요"],1,"따뜻해져 사과밭이 북쪽으로 옮겨 가요."],["기후변화로 바다에서 줄어든 물고기는?",["명태","망고","사과","해파리"],0,"찬물을 좋아하는 명태가 크게 줄었어요."]]}
+];
+const BONUS=[
+["벚꽃이 1922년 관측 이후 서울에서 가장 빨리 핀 해는?",["2021년","2013년","2000년","1990년"],0,"2021년 3월 24일에 피었어요."],
+["우리 양주시에 2025년 여름 내려진 경보는?",["말라리아 경보","폭설 경보","해파리 경보","황사 경보"],0,"양주시는 말라리아 위험지역이에요."],
+["해파리에 쏘였을 때 씻는 물은?",["바닷물","생수","수돗물","주스"],0,"민물이 아닌 바닷물이나 생리식염수로 씻어요."],
+["2025년 3월 경북 산불이 빠르게 번진 까닭은?",["강한 바람과 건조한 날씨","많은 눈","장마","추운 날씨"],0,"바싹 마른 숲에 강풍이 불었어요."],
+["사과를 키우는 땅은 앞으로 어떻게 될까요(예측)?",["점점 줄어들어요","10배로 늘어요","그대로예요","바다로 가요"],0,"2070년대엔 강원도 일부에서만 가능할 것으로 예측돼요."],
+["기후변화의 영향이 아닌 것은?",["큰 산불","해파리 떼","급식 메뉴 변경","봄꽃 일찍 피기"],2,"급식 메뉴는 기후변화의 직접 영향이 아니에요."],
+["최근 30년 우리나라에서 가장 긴 계절은?",["봄","여름","가을","겨울"],1,"여름이 118일로 가장 길어요."],
+["밤에도 기온이 높아 잠들기 힘든 현상은?",["한파","열대야","폭설","황사"],1,"밤 최저기온이 25℃ 이상이면 열대야예요."],
+["조사한 내용을 정리할 때 꼭 함께 적어야 하는 것은?",["출처","좋아하는 색","친구 생일","게임 점수"],0,"어디에서 찾았는지 출처를 꼭 적어요."],
+["숲이 하는 일로 알맞은 것은?",["이산화탄소를 빨아들여요","물을 다 없애요","해파리를 키워요","눈을 녹여요"],0,"숲은 지구의 공기 청소기예요."],
+["다음 중 '생활'에 미치는 영향에 가까운 것은?",["모기에 물려 감염병에 걸려요","동물 서식지가 바뀌어요","바닷물 온도가 올라요","숲이 사라져요"],0,"우리 몸과 생활에 직접 생기는 일이에요."],
+["다음 중 '환경'에 미치는 영향에 가까운 것은?",["숲이 사라져요","물을 아껴 써요","긴 옷을 입어요","재난 문자를 봐요"],0,"자연 환경이 달라지는 일이에요."]
+];
+const STK=[["🐻‍❄️","북극곰 탐정",1],["🐧","펭귄 조수",1],["🌳","나무 수호자",1],["💧","물방울 요정",1],["🚲","자전거 히어로",1],["♻️","분리배출왕",1],["☀️","태양광 박사",2],["🌬️","풍력 마법사",2],["🐝","꿀벌 지킴이",2],["🌏","지구 반장",2],["🦸","기후 히어로",3],["👑","기후 탐정왕",3]];
+const AV=["🕵️","🧑‍🔬","🦊","🐼","🐯","🐰","🤖","🦄"];
+const S={name:"",av:"🕵️",coin:0,solved:{},notes:{},tags:{},stk:{},score:0,quizOk:0,quizAll:0};
+try{const d=JSON.parse(localStorage.getItem("climateDetective")||"null");if(d)Object.assign(S,d);}catch(e){}
+function save(){try{localStorage.setItem("climateDetective",JSON.stringify(S));}catch(e){}}
+const $=s=>document.querySelector(s);
+const app=$("#app");
+function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function emo(e){return e==="jelly"?JELLY:e;}
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1700);}
+function coin(n,why){S.coin+=n;save();toast(`+${n} 코인 ${why||""}`);const c=$("#coinv");if(c)c.textContent=S.coin;}
+function confetti(){const es=["🌸","⭐","🌿","💧","🎉","☀️"];for(let i=0;i<26;i++){const d=document.createElement("div");d.className="conf";d.textContent=es[i%es.length];d.style.left=Math.random()*100+"vw";d.style.animationDelay=Math.random()*.8+"s";document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}}
+function bar(title){const n=Object.keys(S.solved).length;return `<div class="bar"><span style="font-size:30px">${S.av}</span><span class="t">${title}</span><span class="pill">해결 ${n}/8</span><span class="pill coin">🪙 <span id="coinv">${S.coin}</span></span><button class="btn purple" style="padding:8px 14px;font-size:17px" onclick="openStk()">스티커</button><button class="btn gray" style="padding:8px 14px;font-size:17px" onclick="home()">본부</button></div>`;}
+function page(title,inner){clearT();app.innerHTML=bar(title)+`<div class="main">${inner}</div>`;window.scrollTo(0,0);}
+
+/* ---------- 시작 ---------- */
+function start(){
+  app.innerHTML=`<div class="cover"><div class="center" style="max-width:820px">
+  <div class="floaty"><span>🌸</span><span>🦟</span><span>🏜️</span><span>🔥</span><span>🌊</span><span>☀️</span><span>🍎</span></div>
+  <h1>기후변화 탐정단 수사본부</h1>
+  <div class="sub">기후변화가 우리 생활과 환경에 미치는 영향을 조사하라!</div>
+  <p class="mt2" style="color:#cfe0f5">8개의 기후 사건이 접수되었어요. 단서를 조사하고, 출처를 확인하고, 미션을 해결해서<br>최고의 기후 탐정이 되어 보세요!</p>
+  <div class="mt2"><input class="name" id="nm" maxlength="10" placeholder="탐정 이름을 써요" value="${S.name}"></div>
+  <div class="avatars">${AV.map(a=>`<div class="av ${a===S.av?"on":""}" onclick="pickAv(this,'${a}')">${a}</div>`).join("")}</div>
+  <div class="mt2 row" style="justify-content:center"><button class="btn" onclick="enter()">🔍 수사 시작!</button>${Object.keys(S.solved).length?`<button class="btn red" onclick="resetAll()">처음부터 다시</button>`:""}</div>
+  </div></div>`;
+}
+function pickAv(el,a){S.av=a;document.querySelectorAll(".av").forEach(x=>x.classList.remove("on"));el.classList.add("on");}
+function enter(){const v=$("#nm").value.trim();if(!v){toast("탐정 이름을 써 주세요!");return;}S.name=v;save();home();}
+function resetAll(){Object.assign(S,{coin:0,solved:{},notes:{},tags:{},stk:{},score:0,quizOk:0,quizAll:0});save();start();}
+
+/* ---------- 본부 ---------- */
+function home(){
+  const n=Object.keys(S.solved).length;
+  const left=CASES.filter(c=>!S.solved[c.id]);
+  page(`${S.name} 탐정의 수사본부`,`<div class="panel">
+   <div class="row" style="justify-content:space-between"><h2 style="margin:0">사건 게시판</h2><span class="badge">사건은 룰렛이 골라 줘요!</span></div>
+   <p class="mt">아직 해결하지 못한 사건 <b>${left.length}개</b>. 룰렛을 돌려 오늘의 사건을 배정받아요.</p>
+   <div class="board mt">${CASES.map(c=>`<div class="case ${S.solved[c.id]?"done":""}" style="background:${c.c}"><div class="e" style="width:56px;height:56px;display:flex;align-items:center;justify-content:center">${emo(c.e)}</div>${c.t}</div>`).join("")}</div>
+   <div class="mt2 row" style="justify-content:center">
+    ${left.length?`<button class="btn" onclick="roulette()">🎰 사건 룰렛 돌리기</button>`:`<button class="btn green" onclick="finalStart()">🏆 최종 탐정 시험</button>`}
+    <button class="btn blue" onclick="report()">📒 내 조사 보고서</button>
+    ${n>=4&&left.length?`<button class="btn green" onclick="finalStart()">🏆 최종 시험 미리 보기</button>`:""}
+   </div></div>`);
+}
+function roulette(){
+  const left=CASES.filter(c=>!S.solved[c.id]);
+  page("사건 룰렛",`<div class="panel center"><h2>두구두구… 어떤 사건일까?</h2><div class="roul" id="rl">❓</div><h3 id="rt">&nbsp;</h3></div>`);
+  let k=0,steps=18+Math.floor(Math.random()*10);const pick=left[Math.floor(Math.random()*left.length)];
+  const tick=()=>{const c=k>=steps?pick:left[k%left.length];$("#rl").innerHTML=`<div style="width:110px;height:110px;display:flex;align-items:center;justify-content:center">${emo(c.e)}</div>`;$("#rt").textContent=c.t;
+    if(k++<steps)setTimeout(tick,60+k*k*.9);else setTimeout(()=>caseIntro(pick),900);};
+  tick();
+}
+
+/* ---------- 사건 진행 ---------- */
+let CUR=null,STEP=0;
+function steps(){return `<div class="steps">${[0,1,2,3,4,5].map(i=>`<div class="${i<=STEP?"on":""}"></div>`).join("")}</div>`;}
+function caseIntro(c){CUR=c;STEP=0;
+  page(c.t,`<div class="panel">${steps()}<div class="row"><div style="font-size:80px;width:100px;height:100px;display:flex;align-items:center;justify-content:center">${emo(c.e)}</div><div style="flex:1"><span class="badge" style="background:${c.c}">사건 접수</span><h2 class="mt" style="color:${c.c}">${c.t}</h2><p>${c.s}</p></div></div>
+  <div class="hint mt">수사 순서: ① 단서 카드 뒤집기 → ② 탐정 자료실에서 자료 4개 읽고 증거 모으기 → ③ 조사 수첩 쓰기 → ④ 현장 미션 게임 → ⑤ 사건 해결 퀴즈</div>
+  <div class="mt2 center"><button class="btn" onclick="clues()">① 단서 조사하러 가기 ▶</button></div></div>`);}
+function clues(){const c=CUR;STEP=1;let opened=0;
+  page(c.t,`<div class="panel">${steps()}<h2>① 단서 카드를 모두 뒤집어요</h2><p>카드를 누르면 기후변화의 단서가 나와요. 소리 내어 읽어 보세요!</p>
+  <div class="clues mt">${shuf(c.clues).map((k,i)=>`<div class="clue" id="cl${i}"><div class="in"><div class="f"><div class="q">?</div>단서 ${i+1}</div><div class="b">${k[0]}<small>출처: ${k[1]}</small></div></div></div>`).join("")}</div>
+  <div class="mt2 center"><button class="btn" id="nx" disabled onclick="lib()">② 탐정 자료실로 ▶</button></div></div>`);
+  c.clues.forEach((_,i)=>{const el=$("#cl"+i);el.onclick=()=>{if(el.classList.contains("open"))return;el.classList.add("open");opened++;coin(2,"단서 발견!");if(opened===c.clues.length)$("#nx").disabled=false;};});
+}
+function lib(){const c=CUR;STEP=2;const d=DOCS[c.id];S.read=S.read||{};S.ev=S.ev||{};
+  const ev=(S.ev[c.id]||[]).length;const rd=d.filter((_,i)=>S.read[c.id+i]).length;
+  page(c.t,`<div class="panel">${steps()}<h2>② 탐정 자료실</h2>
+  <p>자료 4개를 모두 읽고 확인 문제를 풀어요. 중요한 문장을 <b>눌러서 형광펜</b>으로 칠하면 <b>증거 주머니</b>에 모여요!</p>
+  <div class="row mt"><span class="pill" style="background:#EAF4FF;color:#13315C">읽은 자료 ${rd} / ${d.length}</span><span class="pill" style="background:#FFF4D6;color:#5a4300">🖍️ 모은 증거 ${ev}개 (3개 이상)</span></div>
+  <div class="docs mt">${d.map((x,i)=>{const k=DK[x.k];return `<button class="doc" style="border-color:${k[2]}" onclick="openDoc(${i})"><span class="dk" style="background:${k[2]}">${k[0]} ${k[1]}</span><b>${x.t}</b>${S.read[c.id+i]?'<span class="stamp">읽음</span>':""}</button>`}).join("")}</div>
+  <div class="mt2 center"><button class="btn" ${rd<d.length||ev<3?"disabled":""} onclick="note()">③ 조사 수첩 쓰기 ▶</button>${rd<d.length||ev<3?`<p style="font-size:17px;color:#8a94a0;margin-top:8px">자료를 모두 읽고 증거를 3개 이상 모으면 열려요</p>`:""}</div></div>`);}
+function openDoc(i){const c=CUR,x=DOCS[c.id][i],k=DK[x.k];const ev=S.ev[c.id]=S.ev[c.id]||[];
+  let fig="";
+  if(x.bars){const mx=Math.max(...x.bars.map(b=>b[2]));fig=`<div class="bars">${x.bars.map(b=>`<div class="br"><span class="bl">${b[0]}</span><span class="bt"><span style="width:${Math.max(2,b[2]/mx*100)}%;background:${k[2]}"></span></span><span class="bv">${b[1]}</span></div>`).join("")}</div>`;}
+  if(x.stats)fig=`<div class="stats">${x.stats.map(s=>`<div><b style="color:${k[2]}">${s[0]}</b>${s[1]}</div>`).join("")}</div>`;
+  page(c.t,`<div class="panel"><span class="dk" style="background:${k[2]}">${k[0]} ${k[1]}</span><h2 class="mt">${x.t}</h2>${fig}
+  <div class="sents mt">${x.s.map((t,j)=>`<div class="sent ${ev.includes(t)?"on":""}" data-j="${j}">${t}</div>`).join("")}</div>
+  <p style="font-size:16px;color:#7B2CBF;margin-top:10px">출처: ${x.src}</p>
+  <div class="ck mt2"><h3>✅ 확인 문제: 맞으면 O, 틀리면 X</h3><p class="mt" style="font-weight:800">${x.chk[0]}</p>
+  <div class="row mt"><button class="btn green" id="o1" style="min-width:120px">O</button><button class="btn red" id="o0" style="min-width:120px">X</button></div><div id="fb"></div></div>
+  <div class="mt center"><button class="btn gray" onclick="lib()">◀ 자료실로</button></div></div>`);
+  document.querySelectorAll(".sent").forEach(el=>el.onclick=()=>{const t=x.s[+el.dataset.j];const p=ev.indexOf(t);
+    if(p>=0){ev.splice(p,1);el.classList.remove("on");}else{ev.push(t);el.classList.add("on");toast("🖍️ 증거 주머니에 쏙!");}save();});
+  [0,1].forEach(v=>$("#o"+v).onclick=()=>{const r=(v===1)===x.chk[1];
+    if(r){const first=!S.read[c.id+i];S.read[c.id+i]=1;save();if(first)coin(3,"자료 읽기 완료!");
+      $("#fb").innerHTML=`<div class="fb ok">정답! 자료를 꼼꼼히 읽었네요.</div><div class="center mt"><button class="btn blue" onclick="lib()">자료실로 돌아가기 ▶</button></div>`;}
+    else $("#fb").innerHTML=`<div class="fb no">다시 읽어 보세요! 위 문장 속에 답이 있어요.</div>`;});}
+function note(){const c=CUR;STEP=3;const ev=S.ev[c.id]||[];
+  page(c.t,`<div class="panel">${steps()}<h2>③ 조사 수첩 쓰기</h2><p><b>${c.ask}</b></p>
+  <div class="hint mt"><b>🖍️ 내 증거 주머니</b> (누르면 수첩에 붙어요)<div class="evs mt">${ev.map((t,i)=>`<button class="ev" data-i="${i}">${t}</button>`).join("")}</div></div>
+  <p class="mt" style="font-size:18px">증거를 그대로 붙이기만 하지 말고, <b>"그래서 ~하다", "왜냐하면 ~때문이다"</b>처럼 내 말로 정리해 보세요. <span style="color:#8a94a0">(20자 이상)</span></p>
+  <textarea id="nt" class="mt" placeholder="예) 기후변화로 ~하고 있다. 왜냐하면 ~ 때문이다.">${S.notes[c.id]||""}</textarea>
+  <div class="row mt"><span id="cnt" style="font-size:18px;color:#8a94a0">0자</span><span style="flex:1"></span><button class="btn gray" onclick="lib()">◀ 자료실</button><button class="btn green" onclick="saveNote()">수첩 저장하고 ④ 현장 미션 ▶</button></div></div>`);
+  const t=$("#nt"),u=()=>$("#cnt").textContent=t.value.replace(/\s/g,"").length+"자";t.oninput=u;u();
+  document.querySelectorAll(".ev").forEach(b=>b.onclick=()=>{t.value=(t.value?t.value.trim()+" ":"")+ev[+b.dataset.i];u();b.disabled=true;});}
+function saveNote(){const v=$("#nt").value.trim();if(v.replace(/\s/g,"").length<20){$("#nt").classList.add("shake");setTimeout(()=>$("#nt").classList.remove("shake"),400);toast("20자 이상 써 주세요!");return;}
+  const first=!S.notes[CUR.id];S.notes[CUR.id]=v;save();if(first)coin(5,"수첩 기록!");setTimeout(mission,first?500:0);}
+
+/* ---------- 미니게임 ---------- */
+function mission(){STEP=4;const g=CUR.game;
+  if(g.type==="catch")catchGame(g);else if(g.type==="sort")sortGame(g);else orderGame(g);}
+function missionDone(msg){coin(10,"미션 성공!");confetti();
+  page(CUR.t,`<div class="panel center">${steps()}<div style="font-size:80px">🎖️</div><h2>현장 미션 성공!</h2><p>${msg}</p><div class="mt2"><button class="btn" onclick="caseQuiz(0)">⑤ 사건 해결 퀴즈 ▶</button></div></div>`);}
+let TIMERS=[];function clearT(){TIMERS.forEach(t=>{clearInterval(t);clearTimeout(t);});TIMERS=[];}
+function catchGame(g){
+  page(CUR.t,`<div class="panel">${steps()}<h2>④ ${g.title}</h2><p>${g.desc} 목표: <b>${g.goal}마리(개)</b></p>
+  <div class="hud mt"><span>잡은 수 <span id="sc">0</span> / ${g.goal}</span><span>남은 시간 <span id="tm">30</span>초</span></div>
+  <div class="timer"><div id="tb" style="width:100%"></div></div>
+  <div class="arena" id="ar" style="background:${g.bg}"><div class="center" style="padding-top:18%"><button class="btn yellow" id="go">▶ 시작!</button></div></div></div>`);
+  $("#go").onclick=()=>run();
+  function run(){const ar=$("#ar");ar.innerHTML="";let sc=0,t=30;clearT();
+    const spawn=()=>{const bad=Math.random()<.28;const d=document.createElement("div");d.className="tg";d.innerHTML=emo(bad?g.decoy:g.target);
+      const W=ar.clientWidth-90,H=ar.clientHeight-90;d.style.left=Math.random()*W+"px";d.style.top=Math.random()*H+"px";
+      d.onpointerdown=e=>{e.preventDefault();if(d.dataset.x)return;d.dataset.x=1;d.classList.add("hit");
+        if(bad){sc=Math.max(0,sc-1);toast(g.decoy==="🐝"?"앗! 꿀벌은 고마운 친구예요":g.decoy==="🌳"?"앗! 나무를 지켜야 해요":"앗! 물고기는 놓아줘요");}else sc++;
+        $("#sc").textContent=sc;setTimeout(()=>d.remove(),300);if(sc>=g.goal)end(true);};
+      ar.appendChild(d);setTimeout(()=>{if(!d.dataset.x)d.remove();},1500+Math.random()*700);};
+    TIMERS.push(setInterval(spawn,520));
+    TIMERS.push(setInterval(()=>{t--;$("#tm").textContent=t;$("#tb").style.width=(t/30*100)+"%";if(t<=0)end(sc>=g.goal);},1000));
+    function end(ok){clearT();if(ok)missionDone(`${g.title}에 성공했어요! ${CUR.clues[0][0]}`);
+      else{ar.innerHTML=`<div class="center" style="padding-top:12%;color:#fff"><h2 style="color:#fff">아쉬워요! ${sc}개 잡았어요</h2><button class="btn yellow mt" id="rg">다시 도전!</button></div>`;$("#rg").onclick=run;}}
+  }
+}
+function sortGame(g){const items=shuf(g.items);let i=0,ok=0;
+  const draw=()=>{if(i>=items.length){if(ok>=items.length-1)missionDone(`${items.length}개 중 ${ok}개를 맞혔어요!`);else{page(CUR.t,`<div class="panel center">${steps()}<h2>${items.length}개 중 ${ok}개 정답</h2><p>${items.length-1}개 이상 맞혀야 미션 성공! 다시 해 볼까요?</p><button class="btn mt" onclick="mission()">다시 도전</button></div>`);}return;}
+    const it=items[i];
+    page(CUR.t,`<div class="panel">${steps()}<h2>④ ${g.title}</h2><p>${g.desc}</p><div class="hud mt"><span>${i+1} / ${items.length}</span><span>정답 ${ok}</span></div>
+    <div class="sortcard" id="sc"><div class="e">${it[1]}</div>${it[0]}</div>
+    <div class="bins"><button class="btn green" id="b0">${g.left}</button><button class="btn red" id="b1">${g.right}</button></div><div id="fb"></div></div>`);
+    [0,1].forEach(k=>$("#b"+k).onclick=()=>{$("#b0").disabled=$("#b1").disabled=true;const r=k===it[2];if(r)ok++;
+      $("#fb").innerHTML=`<div class="fb ${r?"ok":"no"}">${r?"정답! ":"아니에요! "}"${it[0]}"는 <b>${it[2]===0?g.left:g.right}</b> 쪽이에요.</div><div class="center mt"><button class="btn blue" id="nx">다음 ▶</button></div>`;
+      $("#nx").onclick=()=>{i++;draw();};});};
+  draw();
+}
+function orderGame(g){let got=0,miss=0;const pieces=shuf(g.items.map((t,i)=>[t,i]));
+  page(CUR.t,`<div class="panel">${steps()}<h2>④ ${g.title}</h2><p>${g.desc}</p>
+  <div class="chain mt">${g.items.map((_,i)=>`<div class="slot" id="sl${i}"><b>${i+1}</b>?</div>`).join("")}</div>
+  <div class="pieces">${pieces.map(p=>`<button class="btn" data-i="${p[1]}">${p[0]}</button>`).join("")}</div><div id="fb"></div></div>`);
+  document.querySelectorAll(".pieces .btn").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;
+    if(i===got){const s=$("#sl"+got);s.classList.add("fill");s.innerHTML=`<b>${got+1}</b>${g.items[got]}`;b.remove();got++;if(got===g.items.length)setTimeout(()=>missionDone(miss?`${miss}번 틀렸지만 끝까지 완성했어요!`:"한 번도 틀리지 않고 완성! 천재 탐정!"),600);}
+    else{miss++;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),400);$("#fb").innerHTML=`<div class="fb no">순서가 달라요! ${got+1}번째에 올 것을 다시 생각해 봐요.</div>`;}});
+}
+
+/* ---------- 퀴즈 ---------- */
+function quizView(q,num,total,title,onNext){
+  const order=shuf(q[1].map((t,i)=>[t,i]));const cols=["red","yellow","green","blue"];
+  page(title,`<div class="panel">${CUR&&STEP===5?steps():""}<div class="hud"><span>문제 ${num} / ${total}</span><span>정답 +5 코인</span></div>
+  <div class="qbox">${q[0]}</div><div class="opts">${order.map((o,k)=>`<button class="btn ${cols[k]}" data-i="${o[1]}">${"①②③④"[k]} ${o[0]}</button>`).join("")}</div><div id="fb"></div></div>`);
+  document.querySelectorAll(".opts .btn").forEach(b=>b.onclick=()=>{const r=+b.dataset.i===q[2];S.quizAll++;if(r){S.quizOk++;coin(5,"정답!");}save();
+    document.querySelectorAll(".opts .btn").forEach(x=>{x.disabled=true;if(+x.dataset.i===q[2]){x.disabled=false;x.style.outline="6px solid #13315C";}});
+    $("#fb").innerHTML=`<div class="fb ${r?"ok":"no"}">${r?"⭕ 정답!":"❌ 아쉬워요!"} ${q[3]}</div><div class="center mt"><button class="btn" id="nx">다음 ▶</button></div>`;
+    $("#nx").onclick=()=>onNext(r);});
+}
+function caseQuiz(i){STEP=5;const qs=CUR.quiz;
+  if(i>=qs.length){solve();return;}
+  quizView(qs[i],i+1,qs.length,CUR.t,()=>caseQuiz(i+1));}
+function solve(){S.solved[CUR.id]=1;save();coin(10,"사건 해결!");confetti();
+  const n=Object.keys(S.solved).length;const ev=Math.random()<.4;
+  page(CUR.t,`<div class="panel center"><div style="font-size:90px;width:120px;height:120px;margin:0 auto;display:flex;align-items:center;justify-content:center">${emo(CUR.e)}</div><h2>"${CUR.t}" 해결 완료!</h2>
+  <p>지금까지 해결한 사건 <b>${n} / 8</b>. 조사 수첩 내용은 보고서에 저장되었어요.</p>
+  <div class="row mt2" style="justify-content:center">${ev?`<button class="btn red" onclick="breaking()">🚨 기후 속보 도착!</button>`:""}<button class="btn" onclick="home()">본부로 돌아가기</button><button class="btn purple" onclick="openStk()">🎁 스티커 뽑기</button></div></div>`);}
+function breaking(){const q=BONUS[Math.floor(Math.random()*BONUS.length)];CUR=null;
+  quizView(q,1,1,"🚨 기후 속보 보너스 문제",r=>{if(r)coin(10,"속보 보너스!");home();});}
+
+/* ---------- 스티커 가챠 ---------- */
+function openStk(){const m=document.createElement("div");m.className="modal";m.id="md";
+  const have=Object.keys(S.stk).length;
+  m.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">기후 탐정 스티커 도감 ${have}/${STK.length}</h2><button class="btn gray" style="padding:8px 14px;font-size:17px" onclick="$('#md').remove()">닫기</button></div>
+  <div class="gacha" id="gc">🎁</div><div class="center"><button class="btn yellow" id="gb" ${S.coin<20?"disabled":""}>🪙 20코인으로 뽑기 (보유 ${S.coin})</button><p id="gt" style="margin-top:8px;font-size:18px">일반 · <span style="color:#7B2CBF">희귀</span> · <span style="color:#E63946">전설</span> 스티커를 모아 보세요!</p></div>
+  <div class="stickers mt">${STK.map((s,i)=>`<div class="stk r${s[2]} ${S.stk[i]?"have":""}"><div class="e">${s[0]}</div>${S.stk[i]?s[1]:"???"}</div>`).join("")}</div></div>`;
+  document.body.appendChild(m);
+  $("#gb").onclick=()=>{if(S.coin<20)return;S.coin-=20;const r=Math.random();const tier=r<.08?3:r<.33?2:1;const pool=STK.map((s,i)=>[s,i]).filter(x=>x[0][2]===tier);const p=pool[Math.floor(Math.random()*pool.length)];
+    const dup=!!S.stk[p[1]];S.stk[p[1]]=1;if(dup)S.coin+=5;save();const g=$("#gc");g.classList.remove("spin");void g.offsetWidth;g.textContent="🎁";g.classList.add("spin");
+    setTimeout(()=>{$("#md").remove();openStk();$("#gc").textContent=p[0][0];$("#gt").innerHTML=`<b>${["","일반","희귀","전설"][tier]} 스티커 "${p[0][1]}"</b> ${dup?"(이미 있어서 5코인 돌려받음)":"획득!"}`;if(tier===3)confetti();const c=$("#coinv");if(c)c.textContent=S.coin;},900);};
+}
+
+/* ---------- 보고서 ---------- */
+function report(){
+  const done=CASES.filter(c=>S.notes[c.id]);
+  page("내 조사 보고서",`<div class="panel report"><h2>📒 ${S.name} 탐정의 기후변화 조사 보고서</h2>
+  <p>각 조사 내용이 <b>우리 생활</b>에 미치는 영향인지, <b>환경</b>에 미치는 영향인지 골라 보세요. 그다음 학습지에 옮겨 써요!</p>
+  <div class="mt">${done.length?done.map(c=>`<div class="it"><div class="row"><span style="font-size:36px;width:44px;height:44px;display:inline-flex">${emo(c.e)}</span><h3 style="flex:1">${c.t}</h3>
+   <button class="btn tagbtn ${S.tags[c.id]==="생활"?"sel":""}" style="background:#E2557A" onclick="tag('${c.id}','생활')">우리 생활</button>
+   <button class="btn tagbtn ${S.tags[c.id]==="환경"?"sel":""}" style="background:#1FAB89" onclick="tag('${c.id}','환경')">환경</button></div>
+   <p class="mt" style="font-size:20px">${S.notes[c.id].replace(/</g,"&lt;")}</p><p style="font-size:16px;color:#7B2CBF;margin-top:6px">출처: ${[...new Set(DOCS[c.id].map(d=>d.src))].join(" / ")}</p></div>`).join(""):`<p class="hint">아직 쓴 조사 수첩이 없어요. 사건을 먼저 해결해 보세요!</p>`}</div>
+  <div class="center mt"><button class="btn" onclick="home()">본부로</button></div></div>`);}
+function tag(id,t){const first=!S.tags[id];S.tags[id]=t;save();if(first)coin(2,"분류 완료!");report();}
+
+/* ---------- 최종 시험 ---------- */
+function finalStart(){CUR=null;const bank=shuf(CASES.flatMap(c=>c.quiz).concat(BONUS)).slice(0,10);let i=0,ok=0;
+  const next=r=>{if(r!==undefined&&r)ok++;if(i>=bank.length){finalEnd(ok,bank.length);return;}const q=bank[i++];quizView(q,i,bank.length,"🏆 최종 기후 탐정 시험",next);};
+  page("최종 기후 탐정 시험",`<div class="panel center"><div style="font-size:90px">🏆</div><h2>최종 기후 탐정 시험</h2><p>지금까지 조사한 모든 사건에서 <b>랜덤 10문제</b>가 나와요. 할 때마다 문제가 달라져요!</p><button class="btn mt2" id="fs">시험 시작</button></div>`);
+  $("#fs").onclick=()=>next();}
+function finalEnd(ok,n){const rank=ok>=9?["👑","전설의 기후 탐정왕"]:ok>=7?["🥇","베테랑 기후 탐정"]:ok>=5?["🥈","성장하는 기후 탐정"]:["🥉","견습 기후 탐정"];
+  if(ok>=7){coin(20,"시험 보너스!");confetti();}
+  page("시험 결과",`<div class="panel center"><div style="font-size:100px">${rank[0]}</div><h2>${n}문제 중 ${ok}문제 정답!</h2><h3 style="color:#FF7A1A">${S.name} 탐정의 등급: ${rank[1]}</h3>
+  <p class="mt">해결한 사건 ${Object.keys(S.solved).length}/8 · 모은 스티커 ${Object.keys(S.stk).length}/${STK.length}</p>
+  <div class="row mt2" style="justify-content:center"><button class="btn" onclick="finalStart()">다시 도전 (새 문제)</button><button class="btn blue" onclick="report()">📒 보고서 보기</button><button class="btn purple" onclick="openStk()">🎁 스티커 뽑기</button></div></div>`);}
+
+window.addEventListener("error",e=>{console.log(e.message);});
+start();
+</script>
+</body>
+</html>
